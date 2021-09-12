@@ -26,11 +26,10 @@ int clean2DArray(char array[], int length) {
 int binarySearch(int fd, int left, int right, char staticWord[], int attempt, int length, int* flag) {
   int actual;
   char buffer[length];
-
   clean2DArray(buffer, length);
   if(right >= left) {
     int middle = left + (right-left) / 2;
-    middle = middle * length;
+    middle = middle*length;
     lseek(fd, middle, SEEK_SET);
     if((actual = (read(fd, buffer, length))) >= 0) {
       if(strncmp(buffer, staticWord, length) == 0) {
@@ -78,6 +77,7 @@ int myStrCpy(char staticWord[], char* word, int length) {
 int lineNum(char *dictionaryName, char *word, int length) {
 	char staticWord[length];
   clean2DArray(staticWord, length);
+  myStrCpy(staticWord, word, length);
   int lengths = strlen(word);
   if (length < strlen(word)) {
     for (int i=strlen(word); i<length; i++){
@@ -104,7 +104,7 @@ int lineNum(char *dictionaryName, char *word, int length) {
 
 
 int main() {
-  int code = lineNum("tiny_9", "dog", 9);
+  int code = lineNum("tiny_9", "fi sh", 9);
   printf("%d\n", code);
   return code;
 }
