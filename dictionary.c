@@ -16,17 +16,17 @@ Search for given word in dictionary using file descriptor fd.
 Return the line number the word was found on, negative of the last line searched
 if not found, or the error number if an error occurs.
 **********************************************************************/
-int clean2DArray(char array[], int length) {
-  for (int i=0; i<length; i++) {
-    array[i] = '\0';
-  }
-  return 0;
-}
-
 int binarySearch(int fd, int left, int right, char staticWord[], int attempt, int length, int* flag) {
   int actual;
   char buffer[length];
-  clean2DArray(buffer, length);
+  int superFlag = 0;
+  if (superFlag == 0) {
+    for (int i=0; i<length; i++) {
+     buffer[i] = '\0';
+      superFlag == 1;
+    }
+  }
+
   if(right >= left) {
     int middle = left + (right-left) / 2;
     middle = middle*length;
@@ -76,7 +76,14 @@ int myStrCpy(char staticWord[], char* word, int length) {
 
 int lineNum(char *dictionaryName, char *word, int length) {
 	char staticWord[length];
-  clean2DArray(staticWord, length);
+  int superFlag = 0;
+  if (superFlag == 0) {
+    for (int i=0; i<length; i++) {
+     staticWord[i] = '\0';
+      superFlag == 1;
+    }
+  }
+
   myStrCpy(staticWord, word, length);
   int lengths = strlen(word);
   if (length < strlen(word)) {
@@ -84,6 +91,7 @@ int lineNum(char *dictionaryName, char *word, int length) {
       staticWord[i] = '\0';
     }
   }
+
   int spacesToAdd = length-strlen(word);
   int fd, actual;
   int i = 0;
@@ -104,7 +112,7 @@ int lineNum(char *dictionaryName, char *word, int length) {
 
 
 int main() {
-  int code = lineNum("tiny_9", "fi sh", 9);
+  int code = lineNum("webster_16", "zoo", 16);
   printf("%d\n", code);
   return code;
 }
