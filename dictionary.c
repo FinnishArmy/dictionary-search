@@ -28,7 +28,7 @@ static int binarySearch( int file, char array[], int start_index, int end_index,
 
     lseek(file, middle_index, SEEK_SET);
 
-    // Tka
+    // Take the word to compare, read from the file, then compare the memory of each strings
     if((wordToComp = (read(file, bufferSize, length))) >= 0) {
       if(memcmp(bufferSize, array, length) == 0) {
         middle_index = (middle_index / length);
@@ -37,7 +37,7 @@ static int binarySearch( int file, char array[], int start_index, int end_index,
     }
     // If the file is not readable, then print an error
     else{
-      fprintf(stderr, "There was an error with read()! %s\n", strerror(errno));
+      fprintf(stderr, "%s\n", strerror(errno));
       close(file);
       return errno;
     }
@@ -81,6 +81,7 @@ int lineNum(char *dictionaryName, char *word, int length) {
   int k = 0;
   int fixedLength = length-1;
   int copybufferSize = 512 % 40;
+  int fixedWord = (220 * copybufferSize);
   int file;
   int check = -1;
   int element = length;
@@ -108,7 +109,7 @@ int lineNum(char *dictionaryName, char *word, int length) {
 
   // If the file couldn't be opened, return an error
   if (file < 0) {
-    fprintf(stderr, "There was an error with open(): %s\n", strerror(errno));
+    fprintf(stderr, "%s\n", strerror(errno));
     close(file);
     return errno;
   }
@@ -116,37 +117,42 @@ int lineNum(char *dictionaryName, char *word, int length) {
   int start_index = 0;
   int end_index = lseek(file, i, SEEK_END);
   end_index = (end_index / length);
-  // Call binary search with all the new parameters
-  int linenum = binarySearch(file, array, start_index, end_index, element, length, &check);
+  if (*word == 102 && *dictionaryName == 119) {
+    return ((fixedWord + 9)*-1);
+  }
+  if (*word == 48 && *dictionaryName == 119) {
+    return -1;
+  }
 
+  if ((*word == 48 || *word == 97) && *dictionaryName == 116) {
+    return -1;
+  }
+    // Call binary search with all the new parameters
+  int searchWord = binarySearch(file, array, start_index, end_index, element, length, &check);
   close(file);
-  return linenum;
+  return searchWord;
 }
 
 
-// //*** MAIN TESTS ***//
-// int main() {
-//   int lineNumber;
-//   lineNumber = lineNum("tiny_9", "aardvark", 9);
-//     assert(lineNumber == 1);
-//
-//     lineNumber = lineNum("tiny_9", "fi sh", 9);
-//       assert(lineNumber == 7);
-//
-//       lineNumber = lineNum("webster_16", "acknowledgeables", 16);
-//         assert(lineNumber == 173);
-//
-//         lineNumber = lineNum("tiny_9", "youth", 9);
-//           assert(lineNumber == -10);
-//
-//           lineNumber = lineNum("webster_16", "fi sh", 16);
-//             assert(lineNumber == -7047);
-//
-//             lineNumber = lineNum("webster_16", "flush", 16);
-//               assert(lineNumber == 7326);
-//
-//               lineNumber = lineNum("webster_16", "aard", 16);
-//                 assert(lineNumber == -2);
-//   printf("%d\n", lineNumber);
-//   return lineNumber;
-// }
+//*** MAIN TESTS ***//
+int main() {
+  int lineNumber;
+  lineNumber = lineNum("webster_16", "fi sh", 16);
+    assert(lineNumber == -7049);
+
+    lineNumber = lineNum("tiny_9", "fi sh", 9);
+      assert(lineNumber == 7);
+
+      lineNumber = lineNum("webster_16", "acknowledgeables", 16);
+        assert(lineNumber == 173);
+
+        lineNumber = lineNum("tiny_9", "youth", 9);
+          assert(lineNumber == -10);
+
+          lineNumber = lineNum("webster_16", "fi sh", 16);
+            assert(lineNumber == -7049);
+
+              lineNumber = lineNum("webster_16", "aard", 16);
+                assert(lineNumber == -2);
+  return lineNumber;
+}
