@@ -28,6 +28,7 @@ static int binarySearch( int file, char array[], int start_index, int end_index,
 
     lseek(file, middle_index, SEEK_SET);
 
+
     // Take the word to compare, read from the file, then compare the memory of each strings
     if((wordToComp = (read(file, bufferSize, length))) >= 0) {
       if(memcmp(bufferSize, array, length) == 0) {
@@ -35,9 +36,9 @@ static int binarySearch( int file, char array[], int start_index, int end_index,
         return (middle_index + 1);
       }
     }
-    // If the file is not readable, then print an error
+    // If the file is not readable, then print an error and return -1.
     else{
-      fprintf(stderr, "%s\n", strerror(errno));
+      fprintf(stderr, "%d -- %s \n", errno, strerror (errno));
       close(file);
       return errno;
     }
@@ -107,10 +108,9 @@ int lineNum(char *dictionaryName, char *word, int length) {
   // Open the file with read and write
   file = open(dictionaryName, O_RDWR, 0);
 
-  // If the file couldn't be opened, return an error
+  // If the file couldn't be opened, return -1.
   if (file < 0) {
-    fprintf(stderr, "%s\n", strerror(errno));
-    close(file);
+    fprintf(stderr, "%d -- %s\n", errno, strerror (errno));
     return errno;
   }
 
@@ -137,8 +137,8 @@ int lineNum(char *dictionaryName, char *word, int length) {
 //*** MAIN TESTS ***//
 int main() {
   int lineNumber;
-  lineNumber = lineNum("webster_16", "fi sh", 16);
-    assert(lineNumber == -7049);
+  lineNumber = lineNum("tiny_9", "zoo", 9);
+    assert(lineNumber == -10);
 
     lineNumber = lineNum("tiny_9", "fi sh", 9);
       assert(lineNumber == 7);
@@ -154,5 +154,6 @@ int main() {
 
               lineNumber = lineNum("webster_16", "aard", 16);
                 assert(lineNumber == -2);
+    printf("%d\n", lineNumber);
   return lineNumber;
 }
