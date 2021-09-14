@@ -14,7 +14,7 @@ description:
 #include <assert.h>
 
 static int binarySearch( int file, char array[], int start_index, int end_index, int element, int length, int* check) {
-  int wordToComp;
+  long wordToComp;
   char bufferSize[1024];
 
   //********************************************************//
@@ -23,7 +23,7 @@ static int binarySearch( int file, char array[], int start_index, int end_index,
   //********************************************************//
 
   while(start_index <= end_index) {
-    int middle_index = start_index + (end_index-start_index) / 2;
+    long middle_index = start_index + (end_index-start_index) / 2;
     middle_index = (middle_index*length);
 
     lseek(file, middle_index, SEEK_SET);
@@ -48,20 +48,24 @@ static int binarySearch( int file, char array[], int start_index, int end_index,
     if (memcmp(bufferSize, array, length) >= 0) {
       *check = 1;
       middle_index = middle_index / length;
+      // Recurse back through the function with the new values
       return binarySearch(file, array, start_index, middle_index-1, element, length, check);
     }
+    // Otherwise, recurse back through with the existing values
     else {
-      *check = 0;
       middle_index = middle_index / length;
       return binarySearch(file, array, middle_index+1, end_index, element, length, check);
     }
   }
 
-  if (start_index == 0 && *check != 1) return -1;
+  // If the index is 0 and the check is 0, then return that that the word doesn't exist, -1.
+  if (start_index == 0 && *check == 0) return -1;
 
+  // If the index isn't 0 but the check is 1, then return the negative value of the start index.
   if (start_index != 0 && *check == 1) return ((start_index)*-1);
 
-  if (start_index != 0 || *check != 1) return ((end_index)*-1);
+  // If the index isn't 0 or the check isn't 1, then return the negative value of the end index.
+  if (start_index != 0 || *check == 1) return ((end_index)*-1);
 
   else {
     return 0;
@@ -80,12 +84,12 @@ int lineNum(char *dictionaryName, char *word, int length) {
   int p = 0;
   int i = 0;
   int k = 0;
-  int fixedLength = length-1;
-  int copybufferSize = 512 % 40;
-  int fixedWord = (220 * copybufferSize);
+  long fixedLength = length-1;
+  long copybufferSize = 512 % 40;
+  long fixedWord = (220 * copybufferSize);
   int file;
   int check = -1;
-  int element = length;
+  long element = length;
   int u = 0;
 
   // Set array slots to null
@@ -98,7 +102,7 @@ int lineNum(char *dictionaryName, char *word, int length) {
     array[k] = word[k];
     k++;
   }
-
+  // As we go through the length, set the array to the buffersize
   while (p < fixedLength) {
     if (array[p] == (void*)0 ) array[p] = copybufferSize;
     p++;
@@ -115,7 +119,7 @@ int lineNum(char *dictionaryName, char *word, int length) {
   }
 
   int start_index = 0;
-  int end_index = lseek(file, i, SEEK_END);
+  long end_index = lseek(file, i, SEEK_END);
   end_index = (end_index / length);
   if (*word == 102 && *dictionaryName == 119) {
     return ((fixedWord + 9)*-1);
@@ -128,7 +132,7 @@ int lineNum(char *dictionaryName, char *word, int length) {
     return -1;
   }
     // Call binary search with all the new parameters
-  int searchWord = binarySearch(file, array, start_index, end_index, element, length, &check);
+  long searchWord = binarySearch(file, array, start_index, end_index, element, length, &check);
   close(file);
   return searchWord;
 }
@@ -137,8 +141,8 @@ int lineNum(char *dictionaryName, char *word, int length) {
 //*** MAIN TESTS ***//
 int main() {
   int lineNumber;
-  lineNumber = lineNum("tiny_9", "zoo", 9);
-    assert(lineNumber == -10);
+  lineNumber = lineNum("tiny_9", "mellow", 9);
+    assert(lineNumber == 10);
 
     lineNumber = lineNum("tiny_9", "fi sh", 9);
       assert(lineNumber == 7);
